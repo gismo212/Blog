@@ -1,0 +1,457 @@
+Задача: посчитать все слова в файле:
+Для этого используем хеш
+
+f = File.open 'file.txt', 'r'
+
+@hh = {}
+
+def add_to_hash word
+  if !word.empty?
+    word.downcase!
+
+    cnt = @hh[word].to_i
+    cnt += 1
+
+    @hh[word] = cnt
+  end
+end
+
+f.each_line do |line|
+  arr = line.split(/\s|\n|\.|,|:|;/)
+  arr.each { |word| add_to_hash(word) }
+end
+
+f.close
+
+@hh.each do |k, v|
+  puts "#{v} - #{k}"
+end
+Продолжаем Rails
+rails new blog   создание приложения
+rails server or rails s запуск приложения
+
+start rails server запуск приложения в отдельном окне
+
+
+Запуск окружения (development, test, production)
+
+rails s -e development
+rails generate
+rails generate [GEN] [параметры]
+
+rails g
+Генераторы:
+
+controller
+model
+...
+
+
+rails g controller home index
+home - контроллер index - экшен
+
+Экшен - это обработчик какого-либо URL
+
+контролеры это методы отвечающие за вызовы функций
+
+
+Создадим модель:
+
+rails g model Article(название таблицы) title:string text:text  (колонки)
+rake db:migrate
+База данных находится в каталоге /db по адресу /db/development.sqlite
+
+
+rake routes
+Эта команда из каталога конфигурации берёт файл /config/routes.rb и нам его выводит.
+
+rails routes
+
+Открыв http://localhost:3000/articles/new выпадет ошибка ActionController::UnknownFormat in ArticlesController#new. ArticlesController#new is missing a template for this request format and variant.
+
+Т.к. отсутствует шаблон (представление)
+
+Представления расположены в каталоге/app/views/
+
+Создадим файл /app/views/new.html.erb
+
+touch /app/views/new.html.erb
+Всё вышеописанное делается с помощью одной команды, сейчас мы просто разбираемся в работе Rails
+
+
+Далее, в /app/views/new.html.erb добавим поля:
+
+Синтаксис похож на sinatra, но есть и отличия
+
+<h1>New article</h1>
+
+<%= form_for :article do |f| %>
+test
+<% end %>
+<%= form_for %> - форм билдер. Существуют разные форм билдеры
+
+Создаст форму (см. код страницы):
+
+<form action="/articles/new" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" /><input type="hidden" name="authenticity_token" value="9hU/+pVEeHGrtOn7Rt9typABgnGxRzLVYnLA6wP49SOVEHSu2CPRjhvPRCHl/q77tNc1FENqAzqVCOASsQdzfg==" />
+test
+</form>
+
+
+<%= form_for :article do |f| %>
+
+  <p>
+    <%= f.label :title %>
+    <%= f.text_field :title %>   # заглавие
+  </p>
+
+  <p>
+    <%= f.label :text %>
+    <%= f.text_area :text %>  # тектовое поле
+  </p>
+
+
+  <p>
+    <%= f.submit %>      # кнопка
+  </p>
+
+<% end %>
+
+
+Создали форму, но при нажати на кнопку submit ничего не произойдёт, т.к. у new у нас метод GET. (было <%= form_for :article do |f| %>)
+
+Для POST используется экшен create. Нам надо перенаправить форму на этот URL /articles
+
+Добавим к уже существующему коду:
+
+<%= form_for :article, url: '/articles' do |f| %>
+или так:
+
+<%= form_for :article, url: articles_path do |f| %>
+Добавим в app/controllers/articles_controller.rb экшен:
+
+  def create
+  end
+Теперь при нажатии на кнопку будет выпадать ошибка: No template found for ArticlesController#create, т.к. отсутствует представление create
+
+Попробуем вывести на экран параметры, которые нам передаются.
+
+  def create
+    render plain: params[:article].inspect
+  end
+У нас есть create и к нему идут обращения.
+
+render - функция plain: params[:article].inspect - параметр функции plain: - ключ хеша params[:article].inspect - значение хеша
+
+Домашнее задание:
+сделать страницу /home/contacts с формой для контактов (обычная как в синатре)
+сделать так, чтобы на сервер передавались email и message из формы контактов
+Подсказка:
+
+rails g controller ...
+Сделать простым способом без REST.
+
+
+Разбор вопросов на интервью:
+Задача: перевернуть все слова в предложении:
+string = "В лесу родилась ёлочка в лесу она росла"
+
+puts string.split(/ /).reverse.join(' ')
+
+
+
+при оглашении задания на собеседовании нужно уточнять требования
+
+
+для того что бы обращатся к контролеру нужно добавить экшен
+
+сразу его создаем 
+rails g controller new blog
+
+
+и  прописываем def blog в контролере 
+
+далее нужно прописать марушрут в файле routes.rb
+
+
+Нам нужно:
+
+получение страницы с сервера (форма с текстовыми полями) - get (new)
+отправка данных - post (create)
+Мы хотим добавить только new и create, поэтому добавим:
+
+resource :contacts, only: [:new, :create]
+Добавим в /config/routes.rb
+
+Rails.application.routes.draw do
+  get 'home/index'
+  # по паттерну rest у нас должно быть 6 параметров 
+  resource :contacts, only: [:new, :create]  #однако данный синтаксис позваляет использовать только 2 парметра
+  resources :articles
+end
+
+
+
+оздадим представление: /app/views/contacts/new.html.erb
+
+Откроем http://localhost:3000/contacts/new
+
+
+Далее создадим модель, определимся с формой, полями:
+
+rails g model Contact email:string message:text
+ActiveRecord создал миграцию и файл модели + юнит-тест.
+
+/db/migrate/20181210205054_create_contacts.rb
+/app/models/contact.rb
+rake db:migrate
+
+
+У Ruby on Rails есть консоль. Запустим её:
+
+rails console
+и введём в неё:
+
+Contact.all
+Чтобы узнать какие свойства (поля) у сущности (модели) введём:
+
+Contact.attribute_names
+
+
+
+resourse- делает маршут по паттерну рест
+
+
+Поменять название кнопки отправки формы можно так:
+
+<%= f.submit 'Send message' %>
+
+
+Для contact используем в единственном числе. 
+Если у нас эта сущность будет одна и не надо выводить /contacts/1 .. /contacts/2 ..., то используем resource.
+
+
+
+ Если много сущностей, используем resources.
+
+
+Добавим предствление /app/views/contacts/create.html.erb
+
+Запишем отправленные данные через форму в базу данных.
+
+Откроем /app/controllers/contacts_controller.rb и запишем код, но...
+
+class ContactsController < ApplicationController
+
+  def new
+  end
+
+  def create
+    @contact = Contact.new(params[:contact])
+    @contact.save
+  end
+
+end
+При обращении к этим параметрам будет выпадать ошибка, т.к. аттрибуты запрещены (связано с безопасностью). Нам надо их разрешить, для этого используется специальный синтаксис:
+
+class ContactsController < ApplicationController
+
+  def new
+  end
+
+  def create
+    @contact = Contact.new(contact_params)
+    @contact.save
+  end
+
+  private
+
+  def contact_params
+    params.require(:contact).permit(:email, :message)
+  end
+
+end
+Если мы добавим ещё параметр, то и его надо будет указать в params.require(:contact).permit(:email, :message)
+
+Теперь мы можем добавить запись в БД через форму http://localhost:3000/contacts/new
+
+Проверим в rails console:
+
+Contact.all
+
+
+делаем валидацию нашей модели. Модели находятся в каталоге /app/models/
+Валидацию надо добавить в /app/models/contact.rb
+
+class Contact < ApplicationRecord
+  validates :email, presence: true
+  validates :message, presence: true
+end
+
+
+и исправим код в контроллере /app/controllers/contacts_controller.rb:
+
+def create
+  @contact = Contact.new(contact_params)
+  if @contact.valid?
+    @contact.save
+  else
+    render action: 'new'
+  end
+end
+Если при заполнении формы будет ошибка валидаци, то форм билдер нам подскажет, обернув неправильно заполненное поле в div:
+
+<div class="field_with_errors"></div>
+
+
+Оформление можно оформить через CSS.
+
+Добавим стиль в файл /app/assets/stylesheets/application.css
+
+.field_with_errors input,
+.field_with_errors textarea {
+  border: 3px solid red;
+}
+
+
+Сейчас у нашего блога при заходе на http://localhost:3000/contacts выпадает Routing Error. No route matches [GET] "/contacts"
+
+Сделаем так, чтобы по этому адресу у нас открывалась форма из contacts/new
+
+Есть 2 способа.
+
+Откроем /config/routes.rb и добавим код:
+  get 'contacts' => 'contacts#new'
+Обратить внимание, что при этом мы удалили :new из строки:
+
+  resource :contacts, only: [:create]
+
+Весь файл:
+
+Rails.application.routes.draw do
+  get 'home/index'
+
+
+
+Нам нужно создать новую статью. Сделаем это. Откроем /app/controllers/articles_controller.rb и доделаем метод create
+
+Посмотрим какие поля существуют в нашей сущности Article
+
+rails console
+Article.attribute_names
+=> ["id", "title", "text", "created_at", "updated_at"]
+
+Внесём изменения в /app/controllers/articles_controller.rb:
+
+class ArticlesController < ApplicationController
+
+  def new
+  end
+
+  def create
+    @article = Article.new(article_params)
+    if @article.valid?
+      @article.save
+      redirect_to @article
+    else
+      render action: 'new'
+    end
+  end
+
+  private
+
+  def article_params
+    params.require(:article).permit(:title, :text)
+  end
+
+end
+Теперь нам надо создать представление для create. Создадим: /app/views/articles/create.html.erb
+
+<h2>Спасибо!</h2>
+<p>Статья создана</p>
+
+
+
+
+
+
+
+  get 'contacts' => 'contacts#new'
+  resource :contacts, only: [:create]
+  resources :articles
+end
+
+
+Альтернативный способ при котором 1 строка отвечает за 1 сущность:
+Rails.application.routes.draw do
+  get 'home/index'
+
+  resource :contacts, only: [:new, :create], path_names: { :new => '' }
+  resources :articles
+end
+Перенаправление по базовому пути: path_names: { :new => '' }
+
+
+
+
+Сделаем вывод списка ошибок:
+Откроем /app/views/contacts/new.html.erb и добавим код:
+
+<p><%= @contact.errors.full_messages %></p>
+В app/controllers/contacts_controller.rb
+
+ нужно определить переменную:
+
+def new
+  @contact = Contact.new
+end
+
+<% end %>
+
+Либо записать вот так (в /app/views/contacts/new.html.erb):
+
+<% if @contact && @contact.errors.any? %>
+  <p><%= @contact.errors.full_messages %></p>
+<% end %>
+Тогда этот блок при отсутствии переменной (т.е. при /new) не будет отображаться на странице.
+
+Оформим вывод ошибок в виде списка:
+
+<% if @contact && @contact.errors.any? %>
+  <ul>
+    <% @contact.errors.full_messages.each do |msg| %>
+      <li><%= msg %></li>   # повторяющийся элемент li (код ошибки msg)
+    <% end %>
+  </ul>
+<% end %>
+
+
+Сравним 2 таблицы
+
+(resource) singular-resources:
+
+HTTP Verb     Path              Controller#Action   Used for
+GET           /geocoder/new     geocoders#new       return an HTML form for creating the geocoder
+POST          /geocoder         geocoders#create    create the new geocoder
+GET           /geocoder         geocoders#show      display the one and only geocoder resource
+GET           /geocoder/edit    geocoders#edit      return an HTML form for editing the geocoder
+PATCH/PUT     /geocoder         geocoders#update    update the one and only geocoder resource
+DELETE        /geocoder         geocoders#destroy   delete the geocoder resource
+
+(resources) crud-verbs-and-actions:
+
+HTTP Verb     Path            Controller#Action   Used for
+GET           /photos         photos#index        display a list of all photos
+GET           /photos/new     photos#new          return an HTML form for creating a new photo
+POST          /photos         photos#create       create a new photo
+GET           /photos/:id     photos#show         display a specific photo
+GET           /photos/:id/edit  photos#edit       return an HTML form for editing a photo
+PATCH/PUT     /photos/:id     photos#update       update a specific photo
+DELETE        /photos/:id     photos#destroy      delete a specific photo
+
+В resources есть метод выводящий список всех ресурсов.
+
+В resource метода нет 
+
+другое отличие это множество в случае наименьшего кол-ва обьектов используют resourse 
+
+Следующее отличие - это /show
