@@ -455,3 +455,12 @@ DELETE        /photos/:id     photos#destroy      delete a specific photo
 другое отличие это множество в случае наименьшего кол-ва обьектов используют resourse 
 
 Следующее отличие - это /show
+
+
+
+при запуске сервера может выводится ошибка,решение C:/projects/blog/tmp/pids/server.pid. перейти по ссылке и удалить server.pid
+=> Booting Puma
+=> Rails 7.0.6 application starting in development
+=> Run `bin/rails server --help` for more startup options
+A server is already running. Check C:/projects/blog/tmp/pids/server.pid.
+Exiting
