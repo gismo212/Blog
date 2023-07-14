@@ -464,3 +464,22 @@ DELETE        /photos/:id     photos#destroy      delete a specific photo
 => Run `bin/rails server --help` for more startup options
 A server is already running. Check C:/projects/blog/tmp/pids/server.pid.
 Exiting
+
+
+
+Вывод списка статей
+Список статей будет доступен по адресу http://localhost:3000/articles
+
+Добавим в контроллер /app/controllers/articles_controller.rb экшен index:
+
+def index
+  @articles = Article.all
+end
+И, создадим вьюху /app/views/articles/index.html.erb
+
+<% @articles.each do |article| %>
+  <h3><%= article.title %></h3>
+  <p><%= article.text %></p>
+  <p><%= link_to  "Show article", article_path(article) %> | <%= link_to  "Edit article", edit_article_path(article) %></p>
+  <hr/> - разделитель
+<% end %>
