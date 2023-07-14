@@ -516,5 +516,15 @@ end
 <% end %>
 
 
+Добавим в контроллер /app/controllers/articles_controller.rb экшен update:
 
+def update
+  @article = Article.find(params[:id])
+
+  if @article.update(article_params)
+    redirect_to @article
+  else
+    render action: 'edit'
+  end
+end
 
