@@ -480,6 +480,41 @@ end
 <% @articles.each do |article| %>
   <h3><%= article.title %></h3>
   <p><%= article.text %></p>
-  <p><%= link_to  "Show article", article_path(article) %> | <%= link_to  "Edit article", edit_article_path(article) %></p>
+  <p><%= link_to  "Show article", article_path(article) %>таким образом передается ссылка на статью |-разделитель
+ <%= link_to  "Edit article", edit_article_path(article) %></p>      редактировавние статей
   <hr/> - разделитель
 <% end %>
+
+
+
+Кнопка на редактирование:
+
+<%= link_to "Edit article", edit_article_path(article) %>
+Добавим в /app/controllers/articles_controller.rb:
+
+def edit
+  @article = Article.find(params[:id])
+end
+И, создадим вьюху /app/views/articles/edit.html.erb:
+
+<h1>Edit article</h1>
+
+<%= form_for :article, url: article_path(@article), method: :patch do |f| %>
+<p>
+  <%= f.label :title %>
+  <%= f.text_field :title %>
+</p>
+<p>
+  <%= f.label :text %>
+  <%= f.text_area :text %>
+</p>
+
+<p>
+  <%= f.submit %>
+</p>
+
+<% end %>
+
+
+
+
