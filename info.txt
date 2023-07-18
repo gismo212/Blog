@@ -528,3 +528,37 @@ def update
   end
 end
 
+
+Контроллер и роутинг статических страниц
+rails g controller Pages
+Создаётся контроллер /app/controllers/pages_controller.rb, внесём код:
+
+class PagesController < ApplicationController
+
+  def terms
+  end
+
+  def about
+  end
+
+end
+И, пропишем маршруты в /config/routes.rb:
+
+  get 'terms' => 'pages#terms'
+  get 'about' => 'pages#about'
+
+И, создадим вьюхи /app/views/pages/terms.html.erb и /app/views/pages/about.html.erb
+
+
+resources 
+
+index-get
+show-get
+new-get
+create-post
+edit-get
+update-put/patch
+destroy-delete
+
+
+
