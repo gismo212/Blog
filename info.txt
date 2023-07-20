@@ -625,3 +625,50 @@ rake db:migrate
 class Comment < ApplicationRecord
   belongs_to :article
 end
+
+
+Это добавит в файл /models/comment.rb:
+
+class Comment < ApplicationRecord
+  belongs_to :article
+end
+А, вот содержимое миграции (/db/migrate/12312314_create_comments.rb):
+
+class CreateComments < ActiveRecord::Migration[5.2]
+  def change
+    create_table :comments do |t|
+      t.string :author
+      t.text :body
+      t.references :article, foreign_key: true
+
+      t.timestamps
+    end
+  end
+end
+
+Идём дальше, чтобы добавить к статьям комментарии нам надо в /models/article.db добавить:
+
+class Article < ApplicationRecord
+  has_many :comments
+end
+Таким образом мы связали 2 сущности между собой.
+
+у нас в /config/routes.rb есть строка:
+
+resources :articles
+Допишем и сделаем вложенный маршрут:
+
+resources :articles do
+  resources :comments
+end
+
+Посмотрим в базе данных:
+
+cd db
+sqlite3 development.sqlite3
+select * from Articles;
+.tables
+select * from Comments;
+Посмотреть через sqlite3, какие поля есть у сущности:
+
+pragma table_info(articles);
