@@ -672,3 +672,20 @@ select * from Comments;
 Посмотреть через sqlite3, какие поля есть у сущности:
 
 pragma table_info(articles);
+
+
+
+Вывод комментариев в представлении статьи:
+Добавим в /app/views/articles/show.html.erb:
+
+<h3>Комментарии:</h3>
+
+<%= 'Без комментариев' if @article.comments.empty? %>
+
+<% @article.comments.each do |comment| %>
+
+<p><strong>Автор:</strong> <%= comment.author %></p>
+<p><%= comment.body %></p>
+<hr>
+
+<% end %>
