@@ -689,3 +689,212 @@ pragma table_info(articles);
 <hr>
 
 <% end %>
+
+
+Devise
+
+Devise - гем для авторизации
+
+Добавим в Gemfile:
+
+gem 'devise'
+
+bundle
+
+Вывести в терминал список генераторов в системе:
+
+rails g
+
+Devise:
+  devise
+  devise:controllers
+  devise:install
+  devise:views
+
+Введём:
+
+rails g devise:install
+
+План, как подключать devise:
+
+    gem 'devise' в Gemfile
+    rails g devise:install
+
+Проверить есть ли строка в файле config/environments/development.rb:
+
+config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
+
+Проверить, что в /config/routes.rb указано:
+
+root to: "home#index"
+
+Добавить в app/views/layouts/application.html.erb для флеш-сообщений:
+
+<p class="notice"><%= notice %></p>
+<p class="alert"><%= alert %></p>
+
+Для кастомизации форм:
+
+rails g devise:views
+
+Далее, создадим модель пользователя:
+
+rails g devise User
+
+Devise создал параметры: e-mail, зашифрованный пароль, токен для сброса пароля.
+
+Наберём:
+
+rake db:migrate
+
+И, запустим:
+
+rails s
+
+Задача: чтобы мы могли просматривать статьи, но не могли их создавать.
+
+    http://localhost:3000/articles
+    http://localhost:3000/articles/new
+
+Откроем /app/controllers/articles_controller.rb и добавим:
+
+    Примечание: начиная с Rails 5 синтаксис before_filter устарел и заменён на before_action
+
+before_action :authenticate_user!
+
+Добавим в /app/views/layouts/application.html.erb:
+
+<p><a href="/users/sign_in">Sign In</a> |
+ <a href="/users/sign_out" data-method="delete">Sign Out</a></p>
+
+
+
+Заменим жёстко прописанные ссылки, на ссылки с именованными маршрутами:
+
+<p><%= link_to "Sign In", new_user_session_path %> | <%= link_to "Sign Out", destroy_user_session_path, method: :delete %></p>
+
+Далее, выведем имя пользователя при авторизации, и уберём Sign Out ссылку, когда мы не авторизованы.
+
+    https://github.com/plataformatec/devise#controller-filters-and-helpers
+
+<% if user_signed_in? %>
+  Hello, <%= current_user.email %> | <%= link_to "Sign Out", destroy_user_session_path, method: :delete %>
+<% else %>
+  <%= link_to "Sign In", new_user_session_path %>
+<% end %>
+
+Авторизация, сессии
+
+    Аутентификация - проверка пользователя и пароля
+    Авторизация - наделение определёнными правами в зависимости от роли (юзер/админ)
+
+       Login, password
+User ------------------> Server
+     <------------------
+       Cookies (*)
+
+/config/initializers/devise.rb
+
+# config.secret_key =
+
+Механизм сессий
+
+session['key'] = 'value'
+
+Cookie выдаётся при первом обращении к серверу, и затем без авторизации идёт обмен данными.
+JSON - универсальный формат данных
+
+    https://ru.wikipedia.org/wiki/JSON
+
+Следующий пример показывает
+ JSON-представление объекта,
+ описывающего человека. В объекте есть строковые поля имени и фамилии,
+ объект, описывающий адрес, и массив, содержащий список телефонов.
+ Как видно из примера, значение может представлять собой вложенную структуру.
+
+{
+   "firstName": "Иван",
+   "lastName": "Иванов",
+   "address": {
+       "streetAddress": "Московское ш., 101, кв.101",
+       "city": "Ленинград",
+       "postalCode": "101101"
+   },
+   "phoneNumbers": [
+       "812 123-1234",
+       "916 123-4567"
+   ]
+}
+
+Добавление username в наш блог,
+ и вставка вместо поля автора комментария, username залогиненого пользователя:
+
+rails g migration add_username
+
+Добавим в существующую таблицу новый столбец.
+
+    https://api.rubyonrails.org/classes/ActiveRecord/Migration.html
+
+/db/migrate/20190129063426_add_username.rb
+
+class AddUsername < ActiveRecord::Migration[5.2]
+  def change
+    add_column :users, :username, :string
+    add_index :users, :username, unique: true
+  end
+end
+
+rake db:migrate
+
+
+Индекс add_index:
+
+Индекс - увеличивается время вставки, но уменьшается время выборки по определённому полю.
+Devise надо указать какие дополнительные параметры можно задать.
+
+Все контроллеры наследуются от базового контроллера ApplicationController и чтобы задать для всех контроллеров один параметр, надо прописать это в ApplicationController.
+
+before_action (в ранних версиях Rails это было before_filter), фильтрует методы в контроллерах до того как их обработать.
+
+/app/controllers/application_controller.rb:
+
+class ApplicationController < ActionController::Base
+  before_action :configure_permitted_parameters, if: :devise_controller?
+
+  protected
+
+  def configure_permitted_parameters
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:username])
+  end
+end
+
+Далее, отредактируем форму регистрации Sign Up:
+
+Сгенерируем набор views:
+
+rails g devise:views
+
+Добавим в /app/views/devise/registrations/new.html.erb код поля ввода username:
+
+<div class="field">
+  <%= f.label :username %><br />
+  <%= f.text_field :username, autocomplete: "username" %>
+</div>
+
+И, выведем имя вместо e-mail в /app/views/layouts/application.html.erb:
+
+<% if user_signed_in? %>
+  Hello, <%= current_user.username %> | <%= link_to "Sign Out", destroy_user_session_path, method: :delete %>
+<% else %>
+  <%= link_to "Sign In", new_user_session_path %>
+<% end %>
+
+Сделаем так, чтобы при комментировании статьи автор указывался тот, кто залогинен
+
+Авторизация только для создания и редактирования статьи /app/controllers/articles_controller.rb:
+
+before_action :authenticate_user!, :only => [:new, :create, :edit, :update, :destroy]
+
+И, для комментирования /app/controllers/comments_controller.rb:
+
+before_action :authenticate_user!, :only => [:create]
