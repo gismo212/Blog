@@ -961,3 +961,78 @@ hipchat ______ github -------
                 www (staging) --- QA
 
 
+естирование моделей
+
+Добавить в Gemfile нашего RailsBlog:
+
+group :test, :development do
+  gem 'rspec-rails'
+  gem 'shoulda-matchers'
+  gem 'capybara'
+end
+
+bundle install
+
+Настройка Rspec для Rails
+
+rails g rspec:install
+
+Настроим Shoulda-matchers, добавив в spec/rails_helper.rb:
+
+Shoulda::Matchers.configure do |config|
+  config.integrate do |with|
+    with.test_framework :rspec
+    with.library :rails
+  end
+end
+
+
+    Создадутся новые каталоги и хелперы. Создастся каталог /spec
+    Создадим для тестирования моделей каталог /spec/models
+
+Модель, которую будем тестировать (/app/models/contact.rb):
+
+class Contact < ApplicationRecord
+  validates :email, presence: true
+  validates :message, presence: true
+end
+
+Создадим тест для модели: создать файл /spec/models/contact_spec.rb
+
+require 'rails_helper'
+
+describe Contact do
+  it { should validate_presence_of :email }
+  it { should validate_presence_of :message }
+end
+
+Запустим тест:
+
+rake spec
+
+should - должно
+Shoulda matchers:
+
+
+have_many:
+
+Создадим тест /spec/models/article_spec.rb:
+
+require 'rails_helper'
+
+describe Article do
+  it { should have_many :comments }
+end
+
+
+
+Создадим тест /spec/models/comment_spec.rb
+
+require 'rails_helper'
+
+describe Comment do
+  it { should belong_to :article }
+end
+
+
+
