@@ -1052,3 +1052,77 @@ describe Article do
     it { should have_many :comments }
   end
 end
+
+
+
+Принято писать для НЕ методов:
+
+describe "something" do
+
+А, для instance методов:
+
+describe "#method" do
+
+
+Для class методов (self.method):
+
+describe ".method" do
+
+
+Добавим в /app/models/article.rb
+
+def subject
+  title
+end
+
+И, протестируем этот метод, добавим тест в /spec/models/article_spec.rb
+
+require 'rails_helper'
+
+describe Article do
+  describe "#subject" do
+    it "returns the article title" do
+      article = create(:article, title: 'Foo Bar')
+
+      expect(article.subject).to  eq 'Foo Bar'
+    end
+  end
+end
+
+
+
+Чтобы этот тест заработал, нужен гем factory bot
+gem Factory Girl (устарел) --> Factory Bot (использовать)
+
+Помогает при тестировании, чтобы не создавать объекты для теста, создаётся фабрика, и она будет создавать нам объекты для теста.
+
+
+Добавить в Gemfile:
+
+group :development, :test do
+  gem "factory_bot_rails"
+end
+
+bundle install
+
+И, добавить конфигурацию в /spec/rails_helper.rb:
+
+RSpec.configure do |config|
+  config.include FactoryBot::Syntax::Methods
+end
+
+И, добавить конфигурацию в /spec/rails_helper.rb:
+
+
+Создадим каталог с фабриками - /spec/factories
+
+И, создадим файл /spec/factories/articles.rb:
+
+FactoryBot.define do
+  factory :article do
+    title { "Article title" }
+    text { "Article text" }
+  end
+end
+
+

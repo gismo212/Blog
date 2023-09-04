@@ -15,6 +15,7 @@ group :test, :development do
   gem 'rspec-rails'
   gem 'shoulda-matchers'
   gem 'capybara'
+  gem "factory_bot_rails"
 end
 
 # Use sqlite3 as the database for Active Record
