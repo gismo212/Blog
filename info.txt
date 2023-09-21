@@ -1126,3 +1126,21 @@ FactoryBot.define do
 end
 
 
+
+
+
+Приёмочное тестирование (Acceptance Testing)
+
+Проверка функциональности на соответствие требованиям. Отличие от юнит-тестов,
+ что для этих тестов обычно существует план приёмочных работ. Юнит-тесты - проверка чтобы не сломалось.
+
+unit:
+
+describe
+  it
+
+acceptance:
+
+feature
+  scenario
+feature scenario - это фишка Capybara 
